@@ -1,0 +1,67 @@
+#imports all necessary modules
+import board
+import keypad
+import usb_hid
+from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.keycode import Keycode
+
+#beskriving:        A class, that assigns a name and shortcut keys to an object, using a constructor(__init__).
+#argument 1:        String - the name for the object
+#argument 2:        Array - an array containing the keycodes for the shortcut   
+#return:            Object - returns an object with an assigned name property and shortcut property.
+#examples:          cut = keymap_content("Cut", [Keycode.CONTROL, Keycode.X]) => cut.name = "Cut", cut.shortcut = [Keycode.CONTROL, Keycode.X]
+#                   redo = keymap_content("Redo") => error
+#By:                Samantha Gyllensten Priest
+#Date:              2022-05-23
+
+class keymap_content:
+    def __init__(content, name, shortcut):
+        content.name = name
+        content.shortcut = shortcut
+        
+cut = keymap_content("Cut", [Keycode.CONTROL, Keycode.X])
+copy = keymap_content("Copy", [Keycode.CONTROL, Keycode.C])
+paste = keymap_content("Paste", [Keycode.CONTROL, Keycode.V])
+undo = keymap_content("Undo", [Keycode.CONTROL, Keycode.Z])
+redo = keymap_content("Redo", [Keycode.SHIFT, Keycode.CONTROL, Keycode.Z])
+select_all = keymap_content("Select all", [Keycode.CONTROL, Keycode.A])
+
+kbd = Keyboard(usb_hid.devices)
+
+# total number of buttons
+num_keys = 6
+
+#creates a keymatrix, assigning pins for the rows and columns
+KEYMATRIX = keypad.KeyMatrix(
+    row_pins=(board.GP2, board.GP3, board.GP4),
+    column_pins=(board.GP5, board.GP6),
+)
+
+#A tuple, containing the objects for each shortcut
+KEYMAP = (
+    cut,
+    copy,
+    paste,
+    undo,
+    redo,
+    select_all,
+)
+
+#prints the keymap
+print("keymap:")
+for k in range(num_keys):
+    print("\t", (KEYMAP[k].name))
+
+#beskriving:        A while-loop, that continues to loop as long as it remains true, which it always is.
+#return:            Sends the corresponding keyboard shortcut and name if a key is pressed.
+#examples:          Key is not pressed => nothing
+#                   Key 0 pressed => prints "Cut" and sends 'control + X'
+#By:                Samantha Gyllensten Priest
+#Date:              2022-05-23
+
+while True:
+    event = KEYMATRIX.events.get()
+    if event:
+        if event.pressed:   #since it only sends if the event is the key being pressed, it will not send if the key is being released, and avoids double sends
+            print(KEYMAP[event.key_number].name)
+            kbd.send(*KEYMAP[event.key_number].shortcut)
