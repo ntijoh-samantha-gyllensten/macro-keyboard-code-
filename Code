@@ -62,6 +62,6 @@ for k in range(num_keys):
 while True:
     event = KEYMATRIX.events.get()
     if event:
-        if event.pressed:   #since it only sends if the event is the key being pressed, it will not send if the key is being released, and avoids double sends
+        if event.pressed:   #since it only sends if the event is the key being pressed, it will not send if the key is being released, and avoids sending twice
             print(KEYMAP[event.key_number].name)
             kbd.send(*KEYMAP[event.key_number].shortcut)
